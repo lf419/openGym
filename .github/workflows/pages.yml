@@ -1,3 +1,4 @@
+# Publishes static app assets; personal journal data stays in the browser.
 name: Deploy personal openGym to GitHub Pages
 
 on:
