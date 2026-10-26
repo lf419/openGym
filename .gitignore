@@ -8,9 +8,14 @@ data/
 
 # Local config
 .env
+.env.local
+.local/
+release/
+coach-auth/
 
 # Build output / deps
 frontend/dist/
+frontend/dist-pages/
 node_modules/
 *.log
 .DS_Store

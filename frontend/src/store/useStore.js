@@ -3,7 +3,7 @@ import { api, setRemoteAuth } from '../lib/api.js'
 import { localTZ } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
 import { registerCustom, healCustomEx } from '../lib/exercises.js'
-import { DEMO, DEMO_SEEDED } from '../lib/demo.js'
+import { DEMO, DEMO_SEEDED, PERSONAL, PERSONAL_CONFIG } from '../lib/demo.js'
 import { rememberDefaultLang } from '../lib/default-lang.js'
 import { guestAllowed } from '../lib/guest.js'
 import { MOBILE, initReminderSync, nativeLoad, nativeSave, onAppActive, readJsonFile, syncReminder, writeAutoBackup, writeJsonFile } from '../lib/mobile.js'
@@ -1535,6 +1535,11 @@ export const useStore = create((set, get) => {
     // Two callers that ask at once get one request: signing in re-asks (setUser) and the pairing
     // flow awaits a refresh of its own immediately after, and there is one answer to have.
     async refreshConfig() {
+      if (PERSONAL) {
+        rememberDefaultLang(PERSONAL_CONFIG)
+        set({ config: PERSONAL_CONFIG })
+        return PERSONAL_CONFIG
+      }
       if (configFetch) return configFetch
       configFetch = (async () => {
         try { const c = await api('/api/config'); rememberDefaultLang(c); set({ config: c }); return c }
@@ -1974,6 +1979,14 @@ export const useStore = create((set, get) => {
         // the choice. Picking local (even with no data yet) persists that choice below and this
         // never asks again.
         finishBoot({ needsMobileOnboarding: !remote && !hasData(get().S) })
+        return
+      }
+      // Pages personal journal: keep this device's real data and never seed a demo or ask an API.
+      if (PERSONAL) {
+        set({ user: null })
+        await get().refreshConfig()
+        get().setGuest(true)
+        finishBoot()
         return
       }
       // Demo build (GitHub Pages): no backend at all — seed once, stay in guest mode.

@@ -35,6 +35,7 @@ vi.mock('react-router-dom', () => ({ useNavigate: () => (...a) => mocks.navs.pus
 vi.mock('../lib/api.js', () => ({ api: vi.fn(path => Promise.resolve(path === '/api/account/passkeys' ? { passkeys: [] } : {})), webauthnOK: () => false, passkeyLogin: vi.fn(), passkeyRegister: vi.fn(), IS_ANDROID: false }))
 vi.mock('../lib/push.js', () => ({ pushSupported: () => mocks.push, enablePush: vi.fn(), disablePush: vi.fn(), sendTestPush: vi.fn(), syncPushSubscription: vi.fn(() => Promise.resolve(mocks.pushOn)) }))
 vi.mock('../lib/wakelock.js', () => ({ wakeLockSupported: () => true }))
+vi.mock('../lib/demo.js', async original => ({ ...await original(), get PERSONAL() { return !!mocks.personal } }))
 vi.mock('../lib/mobile.js', () => ({ get MOBILE() { return mocks.MOBILE }, isAndroid: () => Promise.resolve(false), shareExport: vi.fn(), shareExportBlob: vi.fn(), syncReminder: vi.fn() }))
 vi.mock('./MobileOnboarding.jsx', () => ({ ConnectSheet: () => null }))
 vi.mock('../sheets.jsx', () => ({
@@ -56,6 +57,7 @@ beforeEach(() => {
   mocks.user = null
   mocks.sync = null
   mocks.MOBILE = false
+  mocks.personal = false
   mocks.push = false
   mocks.pushOn = false
   mocks.toast = vi.fn()
@@ -84,6 +86,19 @@ const guestWeb = {
 }
 
 describe('the root', () => {
+  it('personal Pages names local storage and offers backup instead of account sign-in', () => {
+    mocks.personal = true
+    mount()
+    expect(host.querySelector('.sp-acct .lrow-t').textContent).toBe('Your data')
+    expect(host.querySelector('.sp-acct .lrow-s').textContent).toBe('All data stays on this phone')
+    mount('account')
+    expect(titles()).toEqual(['All data stays on this phone', 'Data & backup', 'Source code'])
+    expect(host.textContent).toContain('No account, no cloud.')
+    const ctx = { ...guestWeb, personal: true, webauthn: true, pwOn: true }
+    const results = ['passkey', 'password', 'connection', 'Hevy', 'Android'].flatMap(q => searchSettings(q, ctx))
+    expect(results.some(r => ['Sign in with passkey', 'Sign in with password', 'Create passkey profile', 'Show connection status', 'Import from Hevy', 'Get the Android app'].includes(r.title))).toBe(false)
+  })
+
   it('is an account card and one row per page, in the four groups, with value previews', () => {
     mount()
     expect(host.querySelector('.sp-acct .lrow-t').textContent).toBe('Guest')

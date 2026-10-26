@@ -10,5 +10,8 @@
 // time, so the demo-only UI folds away and the seed generator — imported dynamically — never
 // lands in a self-hosted bundle.
 export const DEMO = import.meta.env.VITE_DEMO === '1'
+// A real, empty browser-only journal. Unlike DEMO it never installs example data.
+export const PERSONAL = import.meta.env.VITE_PERSONAL === '1'
+export const PERSONAL_CONFIG = Object.freeze({ allow_guest: true, default_lang: 'zh', password_login: false })
 export const DEMO_SEEDED = 'gym_demo_seeded_v1'
-export const REPO = 'https://gitlab.com/DuarteSantos8/opengym'
+export const REPO = import.meta.env.VITE_SOURCE_URL || 'https://github.com/DuarteSantos8/openGym'

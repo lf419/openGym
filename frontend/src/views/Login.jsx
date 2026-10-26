@@ -3,7 +3,7 @@ import { useUI } from '../store/useUI.js'
 import { webauthnOK, passkeyLogin, passkeyRegister, passkeyError, bio } from '../lib/api.js'
 import { hasData } from '../store/useStore.js'
 import { t } from '../lib/i18n.js'
-import { DEMO, REPO } from '../lib/demo.js'
+import { DEMO, PERSONAL, REPO } from '../lib/demo.js'
 import { guestAllowed } from '../lib/guest.js'
 import { useState, useRef, useEffect } from 'react'
 import Icon from '../components/Icon.jsx'
@@ -82,6 +82,12 @@ export default function Login() {
   const wrap = { display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '78vh', textAlign: 'center' }
 
   // Demo build: no backend to sign in against — the only way in is the local guest profile.
+  if (PERSONAL) return <div className="login">
+    <h1>{t('Your data')}</h1>
+    <p>{t('All data stays on this phone')}</p>
+    <p>{t('No account, no cloud. Back it up anytime in Data & backup.')}</p>
+    <Button variant="primary" onClick={() => setGuest(true)}>{t('Use on this device')}</Button>
+  </div>
   if (DEMO) return (
     <div className="narrow" style={wrap}>
       {head}

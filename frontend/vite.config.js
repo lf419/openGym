@@ -83,6 +83,7 @@ const swStamp = {
 const flavor = {
   name: 'opengym-flavor',
   transformIndexHtml() {
+    if (process.env.VITE_PERSONAL === '1') return [{ tag: 'meta', attrs: { name: 'opengym-flavor', content: 'personal' }, injectTo: 'head' }]
     if (process.env.VITE_MOBILE !== '1') return
     return [{ tag: 'meta', attrs: { name: 'opengym-flavor', content: 'mobile' }, injectTo: 'head' }]
   }
